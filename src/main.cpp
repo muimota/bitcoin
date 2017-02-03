@@ -1500,6 +1500,21 @@ bool GetAddressUnspent(uint160 addressHash, int type,
     return true;
 }
 
+//MARTIN
+/** return txout so we can know in wich order should we query for the transactions**/
+bool GetDiskTxPos(const uint256 &hash, CDiskTxPos &postx)
+{
+       LOCK(cs_main);
+       if (fTxIndex) {
+               //es heredado de CDiskBlockPos (nFile,nPos) + nTxOffset
+               pblocktree->ReadTxIndex(hash, postx);
+               return true;
+       }
+       postx.nFile = 13;
+       return false;
+}      
+
+
 /** Return transaction in tx, and if it was found inside a block, its hash is placed in hashBlock */
 bool GetTransaction(const uint256 &hash, CTransaction &txOut, const Consensus::Params& consensusParams, uint256 &hashBlock, bool fAllowSlow)
 {

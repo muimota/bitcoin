@@ -13,6 +13,7 @@
 #include "main.h"
 #include "merkleblock.h"
 #include "net.h"
+#include "txdb.h"
 #include "policy/policy.h"
 #include "primitives/transaction.h"
 #include "rpcserver.h"
@@ -197,6 +198,30 @@ void TxToJSON(const CTransaction& tx, const uint256 hashBlock, UniValue& entry)
         }
     }
 }
+
+//MARTIN
+UniValue gettxdiskpos(const UniValue& params,bool fHelp)
+{
+    if (fHelp || params.size() < 1 || params.size() > 2)
+        throw runtime_error("gettxdiskpos \"txid\" ");
+    
+    LOCK(cs_main);
+
+    uint256 hash = ParseHashV(params[0], "parameter 1");
+    CDiskTxPos diskPos;
+    
+    GetDiskTxPos(hash,diskPos);
+    UniValue result(UniValue::VOBJ);
+    
+       result.push_back(Pair("nFile", diskPos.nFile));
+       result.push_back(Pair("nPos",  (int)diskPos.nPos ));
+       result.push_back(Pair("nTxOffset",(int)diskPos.nTxOffset));
+       
+       return result;
+       
+}
+
+
 
 UniValue getrawtransaction(const UniValue& params, bool fHelp)
 {
