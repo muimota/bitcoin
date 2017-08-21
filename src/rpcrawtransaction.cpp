@@ -208,14 +208,39 @@ UniValue gettxdiskpos(const UniValue& params,bool fHelp)
     LOCK(cs_main);
 
     uint256 hash = ParseHashV(params[0], "parameter 1");
-    CDiskTxPos diskPos;
+    CDiskTxPos   diskPos;
+    CTransaction txOut;
+    CBlockHeader header;
     
-    GetDiskTxPos(hash,diskPos);
+    GetDiskTxPos(hash, txOut, diskPos, header);
+    BlockMap::iterator mi = mapBlockIndex.find(header.GetHash());
+    
+    bool fnHeight = false;
+    if (params.size() > 1)
+        fnHeight = (params[1].get_int() != 0);
+    
+    int nHeight = -1;
+    
+    if(fnHeight){
+        //calculate height
+        
+        if (mi != mapBlockIndex.end() && (*mi).second) {
+            CBlockIndex* pindex = (*mi).second;
+            if (chainActive.Contains(pindex)) {
+                nHeight = pindex->nHeight;
+            }
+        }
+    }
+    
+    string rawTx = EncodeHexTx(txOut);
+    
     UniValue result(UniValue::VOBJ);
-    
-       result.push_back(Pair("nFile", diskPos.nFile));
-       result.push_back(Pair("nPos",  (int)diskPos.nPos ));
-       result.push_back(Pair("nTxOffset",(int)diskPos.nTxOffset));
+       result.push_back(Pair("rawTx",       rawTx));
+       result.push_back(Pair("nTime",      (uint64_t) header.nTime));
+       if(fnHeight){
+        result.push_back(Pair("nHeight",    (uint64_t) nHeight ));
+       }
+       result.push_back(Pair("nTxOffset",  (uint64_t) diskPos.nTxOffset));
        
        return result;
        

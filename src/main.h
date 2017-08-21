@@ -244,7 +244,7 @@ std::string GetWarnings(const std::string& strFor);
 
 //MARTIN
 /** return txout so we can know in wich order should we query for the transactions**/
-bool GetDiskTxPos(const uint256 &hash, CDiskTxPos &postx);
+bool GetDiskTxPos(const uint256 &hash, CTransaction &txOut, CDiskTxPos &diskPos,CBlockHeader &header);
 
 /** Retrieve a transaction (from memory pool, or from disk, if possible) */
 bool GetTransaction(const uint256 &hash, CTransaction &tx, const Consensus::Params& params, uint256 &hashBlock, bool fAllowSlow = false);
